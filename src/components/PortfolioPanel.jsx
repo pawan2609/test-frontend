@@ -1,4 +1,4 @@
-import { Card, Statistic, Table, Row, Col } from 'antd';
+import { Card, Statistic, Table, Row, Col, Tag } from 'antd';
 import { WalletOutlined, LineChartOutlined } from '@ant-design/icons';
 
 function fmtNum(v) {
@@ -32,6 +32,7 @@ export default function PortfolioPanel({ portfolio, midPrices }) {
       key: p.symbol,
       currentPrice: mid,
       unrealized,
+      isShort: qty < 0,
     };
   });
 
@@ -43,14 +44,21 @@ export default function PortfolioPanel({ portfolio, midPrices }) {
       title: 'Symbol',
       dataIndex: 'symbol',
       key: 'symbol',
-      render: (v) => <span style={{ fontWeight: 600, fontSize: 11 }}>{v}</span>,
+      render: (v, row) => (
+        <span style={{ fontWeight: 600, fontSize: 11 }}>
+          {v}{' '}
+          <Tag color={row.isShort ? 'red' : 'green'} style={{ marginInlineStart: 4, fontSize: 10, lineHeight: '16px' }}>
+            {row.isShort ? 'SHORT' : 'LONG'}
+          </Tag>
+        </span>
+      ),
     },
     {
       title: 'Qty',
       dataIndex: 'quantity',
       key: 'quantity',
       align: 'right',
-      render: fmtNum,
+      render: (v) => fmtNum(String(Math.abs(parseFloat(v)))),
     },
     {
       title: 'Avg Cost',

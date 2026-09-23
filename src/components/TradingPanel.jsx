@@ -26,6 +26,19 @@ export default function TradingPanel({ openOrders, fills, onPlaceOrder, onCancel
   const [side, setSide] = useState('buy');
   const [orderType, setOrderType] = useState('market');
   const [loading, setLoading] = useState(false);
+  const [cancellingId, setCancellingId] = useState(null);
+
+  const handleCancel = async (orderId) => {
+    setCancellingId(orderId);
+    try {
+      await onCancelOrder(orderId);
+      message.success('Order cancelled');
+    } catch (err) {
+      message.error(err.message || 'Cancel failed');
+    } finally {
+      setCancellingId(null);
+    }
+  };
 
   const handleSubmit = async (values) => {
     setLoading(true);
@@ -102,7 +115,10 @@ export default function TradingPanel({ openOrders, fills, onPlaceOrder, onCancel
             danger
             size="small"
             icon={<CloseCircleOutlined />}
-            onClick={() => onCancelOrder(record.id)}
+            aria-label="Cancel order"
+            loading={cancellingId === record.id}
+            disabled={cancellingId !== null}
+            onClick={() => handleCancel(record.id)}
           />
         ) : null,
     },
